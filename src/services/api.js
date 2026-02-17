@@ -1,7 +1,11 @@
 import axios from 'axios'
 
-// Usar la variable de entorno si está disponible, de lo contrario usar ruta relativa
-const API_BASE_URL = process.env.VUE_APP_API_URL || '/api'
+console.log('🔹 process.env:', process.env)
+console.log('🔹 VUE_APP_API_URL:', process.env.VUE_APP_API_URL)
+
+const API_BASE_URL = process.env.VUE_APP_API_URL || 'http://dvsapp.com/api'
+
+console.log('🔹 API_BASE_URL FINAL:', API_BASE_URL)
 
 const api = axios.create({
   baseURL: API_BASE_URL,
