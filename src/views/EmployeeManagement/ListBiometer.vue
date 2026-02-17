@@ -131,7 +131,7 @@ const loadDevices = async () => {
   error.value = null;
   try {
     // ✅ CORREGIDO: Añadir credentials: 'include' (envía cookies)
-    const response = await fetch('http://dvsappbackend.test/api/biometric-devices', {
+    const response = await fetch('http://dvsapp.com/api/biometric-devices', {
       credentials: 'include' // ✅ ¡CRÍTICO! Para enviar cookies
     });
     
@@ -152,7 +152,7 @@ const deleteConfirmed = async () => {
   deletingId.value = deviceToDelete.value;
   try {
     // ✅ CORREGIDO: Añadir credentials: 'include' al DELETE
-    const response = await fetch(`http://dvsappbackend.test/api/biometric-devices/${deviceToDelete.value}`, {
+    const response = await fetch(`http://dvsapp.com/api/biometric-devices/${deviceToDelete.value}`, {
       method: 'DELETE',
       credentials: 'include', // ✅ ¡CRÍTICO!
       headers: {

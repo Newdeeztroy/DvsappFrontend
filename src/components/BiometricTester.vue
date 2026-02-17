@@ -94,7 +94,7 @@ export default {
       try {
         // Usar credenciales por defecto
         const response = await api.post('/login', {
-          email: 'admin@dvsappbackend.test',
+          email: 'admin@dvsapp.com',
           password: 'password123'
         })
         

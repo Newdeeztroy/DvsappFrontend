@@ -206,18 +206,18 @@ export default {
   methods: {
     getClients() {
       this.changer = true;
-      axios.get("http://dvsappbackend.test/api/clients").then((res) => {
+      axios.get("http://dvsapp.com/api/clients").then((res) => {
         this.clients = res.data;
         this.changer = false;
       });
     },
     deleteclie(id) {
-      confirm('http://dvsappbackend.test/api/clients/',id,'Eliminar Registro','¿Realmente desea eliminar el registro?');
+      confirm('http://dvsapp.com/api/clients/',id,'Eliminar Registro','¿Realmente desea eliminar el registro?');
       this.changer = false;
     },
 
     restoreClient(id) {
-      confirmRestore('http://dvsappbackend.test/api/clients/',id,'Habilitar Registro','¿Realmente desea Habilitar el registro?');
+      confirmRestore('http://dvsapp.com/api/clients/',id,'Habilitar Registro','¿Realmente desea Habilitar el registro?');
       this.changer = false;
     },
 

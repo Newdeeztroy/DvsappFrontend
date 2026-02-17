@@ -137,7 +137,7 @@ const testConnection = async () => {
   connectionResult.value = null;
 
   try {
-    const response = await fetch('http://dvsappbackend.test/api/test-device-connection', {
+    const response = await fetch('http://dvsapp.com/api/test-device-connection', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -127,7 +127,7 @@ const startSynchronization = async () => {
   successMessage.value = null;
 
   try {
-    let url = 'http://dvsappbackend.test/api/sync-users';
+    let url = 'http://dvsapp.com/api/sync-users';
     let method = 'POST';
     let body = null;
 

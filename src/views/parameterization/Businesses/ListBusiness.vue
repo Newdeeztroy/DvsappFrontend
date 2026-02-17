@@ -183,18 +183,18 @@
     methods: {
       getBusinesses() {
         this.changer = true;
-        axios.get("http://dvsappbackend.test/api/businesses").then((res) => {
+        axios.get("http://dvsapp.com/api/businesses").then((res) => {
           this.businesses = res.data;
           this.changer = false;
         });
       },
       deleteclie(id) {
-      confirm('http://dvsappbackend.test/api/businesses/',id,'Eliminar Registro','¿Realmente dese eliminar el registro?');
+      confirm('http://dvsapp.com/api/businesses/',id,'Eliminar Registro','¿Realmente dese eliminar el registro?');
       this.changer = false;
     },
 
     restoreBusiness(id) {
-      confirmRestore('http://dvsappbackend.test/api/businesses/',id,'Habilitar Registro','¿Realmente desea Habilitar el registro?');
+      confirmRestore('http://dvsapp.com/api/businesses/',id,'Habilitar Registro','¿Realmente desea Habilitar el registro?');
       this.changer = false;
     },
 

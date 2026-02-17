@@ -40,7 +40,7 @@
         id: 0,
         name: "",
         nit: "",
-        url: 'http://dvsappbackend.test/api/Businesses',
+        url: 'http://dvsapp.com/api/Businesses',
       };
     },
   

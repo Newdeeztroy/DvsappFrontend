@@ -145,7 +145,7 @@ export default {
       try {
         console.log('🔐 Forzando login...')
         const result = await authService.login(
-          'admin@dvsappbackend.test',
+          'admin@dvsapp.com',
           'password123'
         )
         

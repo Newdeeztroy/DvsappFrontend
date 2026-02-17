@@ -200,7 +200,7 @@ const loadAttendanceReport = async () => {
       params.append("device_id", filters.value.deviceId);
 
     const response = await fetch(
-      `http://dvsappbackend.test/api/attendance-report?${params}`
+      `http://dvsapp.com/api/attendance-report?${params}`
     );
     const data = await response.json();
 

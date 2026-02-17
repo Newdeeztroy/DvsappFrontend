@@ -161,7 +161,7 @@ const loadUsers = async () => {
   loading.value = true;
 
   try {
-    const response = await fetch(`${process.env.VUE_APP_API_URL || process.env.VITE_API_URL || 'http://dvsappbackend.test/api'}/device-users`);
+    const response = await fetch(`${process.env.VUE_APP_API_URL || process.env.VITE_API_URL || 'http://dvsapp.com/api'}/device-users`);
     if (!response.ok) throw new Error('Error al cargar usuarios');
     const data = await response.json();
     users.value = Array.isArray(data) ? data : [];

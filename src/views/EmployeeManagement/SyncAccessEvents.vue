@@ -231,7 +231,7 @@ const syncAccessEvents = async () => {
       body.end_date = filters.value.endDate;
     }
 
-    const response = await fetch('http://dvsappbackend.test/api/sync-access-events', {
+    const response = await fetch('http://dvsapp.com/api/sync-access-events', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -259,7 +259,7 @@ const syncAccessEvents = async () => {
 // Cargar resumen de eventos
 const loadEventSummary = async () => {
   try {
-    const response = await fetch('http://dvsappbackend.test/api/access-events/summary');
+    const response = await fetch('http://dvsapp.com/api/access-events/summary');
     const summary = await response.json();
     eventSummary.value = summary;
   } catch (err) {

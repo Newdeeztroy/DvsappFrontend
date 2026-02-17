@@ -96,7 +96,7 @@ export default {
       photo: "",
       businesses: [], 
       selectedBusiness: "",
-      url: 'http://dvsappbackend.test/api/Clients',
+      url: 'http://dvsapp.com/api/Clients',
     };
   },
 
@@ -140,7 +140,7 @@ export default {
     },
     async fetchBusinesses() {
       try {
-        const response = await fetch('http://dvsappbackend.test/api/Businesses');
+        const response = await fetch('http://dvsapp.com/api/Businesses');
         if (!response.ok) throw new Error('Error al cargar las empresas');
         const data = await response.json();
         this.businesses = data; // Asegúrate de que el JSON devuelto tenga el formato correcto

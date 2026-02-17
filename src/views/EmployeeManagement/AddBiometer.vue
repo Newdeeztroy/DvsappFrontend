@@ -221,7 +221,7 @@ const loadDeviceData = async () => {
   if (!isEditing.value) return;
 
   try {
-    const response = await fetch(`http://dvsappbackend.test/api/biometric-devices/${route.params.id}`);
+    const response = await fetch(`http://dvsapp.com/api/biometric-devices/${route.params.id}`);
     if (!response.ok) throw new Error('Error al cargar el dispositivo');
     const data = await response.json();
 
@@ -280,8 +280,8 @@ const handleSubmit = async () => {
 
   try {
     const url = isEditing.value 
-      ? `http://dvsappbackend.test/api/biometric-devices/${route.params.id}`
-      : 'http://dvsappbackend.test/api/biometric-devices';
+      ? `http://dvsapp.com/api/biometric-devices/${route.params.id}`
+      : 'http://dvsapp.com/api/biometric-devices';
 
     const formData = new FormData();
     
