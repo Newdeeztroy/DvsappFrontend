@@ -372,8 +372,9 @@ const toggleModuleStatus = async (moduleId, currentStatus) => {
       loadingDelete.value = moduleId
 
       try {
-        // Enviar solicitud para cambiar el estado del módulo
+
         await api.patch(`/modules/${moduleId}/activate`, {
+          id: moduleId,
           active: newStatus
         })
 
@@ -398,9 +399,19 @@ const toggleModuleStatus = async (moduleId, currentStatus) => {
         )
       } catch (error) {
         console.error(`Error al ${action} módulo:`, error)
+        console.error('Detalles del error:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message,
+          config: {
+            url: error.config?.url,
+            method: error.config?.method,
+            data: error.config?.data
+          }
+        })
         showNotification(
           'Error',
-          `Ocurrió un error al ${action} el módulo. Por favor inténtelo de nuevo.`,
+          `Ocurrió un error al ${action} el módulo: ${error.response?.data?.message || error.message || 'Error desconocido'}`,
           'danger'
         )
       } finally {

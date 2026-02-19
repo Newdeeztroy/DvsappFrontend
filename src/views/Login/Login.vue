@@ -158,22 +158,21 @@ export default {
 </script>
 
 <style scoped>
-/* 🎨 Fondo con degradado verde */
+/* 🎨 Fondo difuminado verde con varios tonos */
 .login-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a5f23 0%, #1e7a2b 30%, #259634 60%, #2dc23f 100%);
-  background-size: 400% 400%;
-  animation: gradientBG 15s ease infinite;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(45, 194, 63, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(37, 150, 52, 0.5) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(30, 122, 43, 0.3) 0%, transparent 60%),
+    radial-gradient(circle at 10% 80%, rgba(26, 95, 35, 0.4) 0%, transparent 40%),
+    radial-gradient(circle at 90% 20%, rgba(52, 211, 153, 0.3) 0%, transparent 45%),
+    linear-gradient(135deg, #1a5f23 0%, #1e7a2b 25%, #259634 50%, #2dc23f 75%, #15803d 100%);
+  background-size: 100% 100%;
   padding: 20px;
-}
-
-@keyframes gradientBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
 }
 
 /* 📦 Tarjeta de login */

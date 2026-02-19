@@ -555,11 +555,15 @@ const loadSubmodules = async () => {
 
     // Extraer los submódulos de la respuesta paginada
     const rawData = response.data.data; // Tomar directamente response.data.data que es el array de submódulos
+    
+    console.log('Submódulos cargados del backend:', rawData);
 
     // Limpiar campos duplicados
     const cleanedData = Array.isArray(rawData)
       ? rawData.map(item => cleanDuplicateFields(item))
       : [];
+
+    console.log('Submódulos después de limpiar:', cleanedData);
 
     submodules.value = cleanedData;
 
@@ -984,10 +988,25 @@ const toggleSubmoduleStatus = async (submoduleId, currentStatus) => {
       loadingDelete.value = submoduleId
 
       try {
+        // Buscar el submódulo para obtener su module_id
+        const submodule = submodules.value.find(s => s.id === submoduleId);
+        const moduleId = submodule?.module_id || submodule?.moduleId || null;
+
+        console.log('=== CAMBIAR ESTADO SUBMÓDULO ===');
+        console.log('Submódulo ID:', submoduleId);
+        console.log('Submódulo encontrado:', submodule);
+        console.log('Módulo ID:', moduleId);
+        console.log('Nuevo estado:', newStatus);
+        
+        // Crear payload explícitamente
+        const payload = { active: newStatus };
+        if (moduleId !== null) {
+          payload.module_id = moduleId;
+        }
+        console.log('Payload que se envía:', payload);
+
         // Enviar solicitud para cambiar el estado del submódulo
-        await api.patch(`/submodules/${submoduleId}/status`, {
-          active: newStatus
-        })
+        await api.patch(`/submodules/${submoduleId}/status`, payload)
 
         // Actualizar el estado del submódulo en la lista local
         const submoduleIndex = submodules.value.findIndex(s => s.id === submoduleId);
@@ -1002,9 +1021,19 @@ const toggleSubmoduleStatus = async (submoduleId, currentStatus) => {
         )
       } catch (error) {
         console.error(`Error al ${action} submódulo:`, error)
+        console.error('Detalles del error:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message,
+          config: {
+            url: error.config?.url,
+            method: error.config?.method,
+            data: error.config?.data
+          }
+        })
         showNotification(
           'Error',
-          `Ocurrió un error al ${action} el submódulo. Por favor inténtelo de nuevo.`,
+          `Ocurrió un error al ${action} el submódulo: ${error.response?.data?.message || error.message || 'Error desconocido'}`,
           'danger'
         )
       } finally {
@@ -1025,9 +1054,14 @@ const toggleMenuItemStatus = async (menuItemId, currentStatus) => {
       loadingDelete.value = menuItemId
 
       try {
+        // Buscar el menu item para obtener su submodule_id
+        const menuItem = menuItems.value.find(item => item.id === menuItemId);
+        const submenuId = menuItem?.submodule_id || null;
+
         // Enviar solicitud para cambiar el estado del ítem de menú
         await api.patch(`/menu-items/${menuItemId}/status`, {
-          active: newStatus
+          active: newStatus,
+          submodule_id: submenuId
         })
 
         // Refresh menu items for the currently selected submodule to reflect the status change
@@ -1060,9 +1094,19 @@ const toggleMenuItemStatus = async (menuItemId, currentStatus) => {
         )
       } catch (error) {
         console.error(`Error al ${action} ítem de menú:`, error)
+        console.error('Detalles del error:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message,
+          config: {
+            url: error.config?.url,
+            method: error.config?.method,
+            data: error.config?.data
+          }
+        })
         showNotification(
           'Error',
-          'La funcionalidad de ítems de menú no está disponible en este momento.',
+          `Ocurrió un error al ${action} el ítem de menú: ${error.response?.data?.message || error.message || 'Error desconocido'}`,
           'danger'
         )
       } finally {

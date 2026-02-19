@@ -20,30 +20,22 @@
     </div>
       <ul class="navbar-nav flex-column">
         <li class="nav-item">
-          <router-link class="nav-link" to="/" @click="setTopMenu(null)" exact>
+          <router-link class="nav-link" to="/" @click.stop="setTopMenu(null)" exact>
             <i class="fa-solid fa-chart-line"></i>
             <span v-if="isSidebarHovered">Dashboard</span>
           </router-link>
         </li>
-        <li class="nav-item">
-          <router-link class="nav-link" to="/admin/users" @click="setTopMenu('admin')">
-            <i class="fa-solid fa-user-gear"></i>
-            <span v-if="isSidebarHovered">Administración</span>
-          </router-link>
-        </li>
-
         <!-- Módulos dinámicos -->
         <li v-for="module in activeDynamicModules" :key="module.id" class="nav-item">
-          <router-link class="nav-link" :to="getModuleRoute(module)" @click="setTopMenu(module.id)">
+          <a 
+            class="nav-link" 
+            :class="{ 'active': topMenu === `dynamic_module_${module.id}` }"
+            href="#" 
+            @click.prevent="handleDynamicModuleClick(module)"
+          >
             <i :class="module.icon || 'fa-solid fa-folder'"></i>
             <span v-if="isSidebarHovered">{{ module.name }}</span>
-          </router-link>
-        </li>
-        <li class="nav-item">
-          <router-link class="nav-link" to="/GestEmpleados" @click="setTopMenu('gestEmpleados')">
-            <i class="fa-solid fa-user"></i>
-            <span v-if="isSidebarHovered">Gestión de Empleados</span>
-          </router-link>
+          </a>
         </li>
       </ul>
 
@@ -67,520 +59,7 @@
       </div>
     </nav>
     
-
     <div class="main-content">
-      <!-- ✅ NUEVO: Barra superior para Administración -->
-      <nav v-if="topMenu === 'admin' && !$route.path.startsWith('/dashboard')" class="navbar navbar-expand-lg top-menu">
-        <div class="container-fluid">
-          <ul class="navbar-nav">
-            <!-- Usuarios -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="adminUsersDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-users me-1"></i> Usuarios
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="adminUsersDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/admin/users" @click="setTopMenu('admin')">
-                    <i class="fa-solid fa-list me-2"></i> Lista de Usuarios
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/admin/users/create" @click="setTopMenu('admin')">
-                    <i class="fa-solid fa-user-plus me-2"></i> Nuevo Usuario
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-
-            <!-- Roles -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="adminUserDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-user-tag me-1"></i> Gestion de usuarios
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="adminRolesDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/admin/roles" @click="setTopMenu('admin')">
-                    <i class="fa-solid fa-list me-2"></i> Gestion de Roles
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/admin/permissions" @click="setTopMenu('admin')">
-                    <i class="fa-solid fa-list me-2"></i> Gestion de Permisos
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-
-            <!-- Parametrización de Plataforma -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="platformParamDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-cogs me-1"></i> Parametrización de Plataforma
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="platformParamDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/admin/modules" @click="setTopMenu('admin')">
-                    <i class="fa-solid fa-th-large me-2"></i> Admin de Módulos
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/admin/submodules" @click="setTopMenu('admin')">
-                    <i class="fa-solid fa-layer-group me-2"></i> Admin de Submódulos
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </nav>
-      <!-- Barra superior para Parametrización -->
-      <nav v-if="topMenu === 'parametrizacion' && !$route.path.startsWith('/dashboard')" class="navbar navbar-expand-lg top-menu">
-        <div class="container-fluid">
-          <ul class="navbar-nav">
-            <!-- Empleados -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="paramEmpleadosDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-users me-1"></i> Empleados
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="paramEmpleadosDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/listClient" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-list me-2"></i> Lista de Empleados
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/createClient" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-user-plus me-2"></i> Nuevo Empleado
-                  </router-link>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <router-link class="dropdown-item" to="/empleados/importar-excel" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-file-excel me-2"></i> Importar desde Excel
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/empleados/grupos" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-object-group me-2"></i> Grupos/Departamentos
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/empleados/cargos" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-briefcase me-2"></i> Cargos/Posiciones
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-
-            <!-- Empresas -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="paramEmpresasDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-building me-1"></i> Empresas
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="paramEmpresasDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/listBusiness" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-list-ol me-2"></i> Lista de Empresas
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/createBusiness" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-plus-circle me-2"></i> Nueva Empresa
-                  </router-link>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <router-link class="dropdown-item" to="/empresas/sucursales" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-code-branch me-2"></i> Sucursales
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/empresas/contratos" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-file-contract me-2"></i> Contratos
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/empresas/facturacion" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-receipt me-2"></i> Facturación
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-
-            <!-- Configuración General -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="configGeneralDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-sliders-h me-1"></i> Configuración
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="configGeneralDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/config/general" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-cog me-2"></i> Configuración General
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/config/seguridad" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-shield-alt me-2"></i> Seguridad
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/config/notificaciones" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-bell me-2"></i> Notificaciones
-                  </router-link>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <router-link class="dropdown-item" to="/config/backup" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-database me-2"></i> Backup/Restore
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/config/logs" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-clipboard-list me-2"></i> Logs del Sistema
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-
-            <!-- Reportes -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="reportesDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-chart-bar me-1"></i> Reportes
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="reportesDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/reportes/empleados" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-user-chart me-2"></i> Reporte de Empleados
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/reportes/empresas" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-building me-2"></i> Reporte de Empresas
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/reportes/estadisticas" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-chart-pie me-2"></i> Estadísticas
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/reportes/exportar" @click="setTopMenu('parametrizacion')">
-                    <i class="fa-solid fa-file-export me-2"></i> Exportar Datos
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
-      <!-- Barra superior para Tecnología -->
-      <nav v-if="topMenu === 'tecnologia' && !$route.path.startsWith('/dashboard')" class="navbar navbar-expand-lg top-menu">
-        <div class="container-fluid">
-          <ul class="navbar-nav">
-            <!-- Inventarios -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="inventariosDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-boxes me-1"></i> Inventarios
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="inventariosDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/listInventory" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-list me-2"></i> Ver Inventario
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/createInventory" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-plus-circle me-2"></i> Agregar al Inventario
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/inventario/stock" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-warehouse me-2"></i> Control de Stock
-                  </router-link>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <router-link class="dropdown-item" to="/inventario/movimientos" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-exchange-alt me-2"></i> Movimientos
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/inventario/auditoria" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-search me-2"></i> Auditoría de Inventario
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-
-            <!-- Dispositivos -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="dispositivosDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-tablet-alt me-1"></i> Dispositivos
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="dispositivosDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/createArticle" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-microchip me-2"></i> Registrar Dispositivo
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/dispositivos/lista" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-list-ol me-2"></i> Lista de Dispositivos
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/dispositivos/tipos" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-tags me-2"></i> Tipos de Dispositivos
-                  </router-link>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <router-link class="dropdown-item" to="/dispositivos/asignar" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-user-check me-2"></i> Asignar a Empleado
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/dispositivos/mantenimiento" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-tools me-2"></i> Mantenimiento
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-
-            <!-- Bajas y Desechos -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="bajasDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-trash-alt me-1"></i> Bajas
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="bajasDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/listWriteOff" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-list me-2"></i> Inventario de Baja
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/bajas/registrar" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-minus-circle me-2"></i> Registrar Baja
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/bajas/historico" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-history me-2"></i> Histórico de Bajas
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/bajas/reporte" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-file-alt me-2"></i> Reporte de Bajas
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-
-            <!-- Proveedores -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="proveedoresDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-truck me-1"></i> Proveedores
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="proveedoresDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/createSupplier" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-plus me-2"></i> Nuevo Proveedor
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/proveedores/lista" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-address-book me-2"></i> Lista de Proveedores
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/proveedores/compras" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-shopping-cart me-2"></i> Historial de Compras
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/proveedores/contactos" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-id-badge me-2"></i> Contactos
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-
-            <!-- Red y Conectividad -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="redDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-network-wired me-1"></i> Red
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="redDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/red/dispositivos" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-desktop me-2"></i> Dispositivos de Red
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/red/ip" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-map-signs me-2"></i> Gestión de IP
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/red/monitoreo" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-chart-line me-2"></i> Monitoreo de Red
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/red/backup-config" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-save me-2"></i> Backup de Configuración
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-
-            <!-- Reportes Tecnología -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="reportesTecDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-file-alt me-1"></i> Reportes
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="reportesTecDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/reportes/inventario" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-box-open me-2"></i> Reporte de Inventario
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/reportes/dispositivos" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-laptop me-2"></i> Reporte de Dispositivos
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/reportes/mantenimiento" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-clipboard-check me-2"></i> Reporte de Mantenimiento
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/reportes/compras" @click="setTopMenu('tecnologia')">
-                    <i class="fa-solid fa-chart-bar me-2"></i> Reporte de Compras
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
-      <!-- Barra superior para Gestión de Empleados -->
-      <nav v-if="topMenu === 'gestEmpleados'" class="navbar navbar-expand-lg top-menu">
-        <div class="container-fluid">
-          <ul class="navbar-nav">
-            <!-- Empleados -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="accesoEmpleadosDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-users me-1"></i> Empleados
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="accesoEmpleadosDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/accesos/sincronizacionE" @click="setTopMenu('gestEmpleados')">
-                    <i class="fa-solid fa-history me-2"></i> Sincronizacion de Empleados
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/empleados/lista" @click="setTopMenu('gestEmpleados')">
-                    <i class="fa-solid fa-list me-2"></i> Lista de Empleados
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/empleados/nuevo" @click="setTopMenu('gestEmpleados')">
-                    <i class="fa-solid fa-user-plus me-2"></i> Nuevo Empleado
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-
-            <!-- Accesos y Registros -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="registrosDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-door-open me-1"></i> Accesos
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="registrosDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/accesos/sincronizacionA" @click="setTopMenu('gestEmpleados')">
-                    <i class="fa-solid fa-history me-2"></i> Sincronizacion de Eventos
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/accesos/reporte" @click="setTopMenu('gestEmpleados')">
-                    <i class="fa-solid fa-chart-bar me-2"></i> Reportes de Eventos
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-
-            <!-- Tarjetas y Credenciales -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="tarjetasDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-id-card me-1"></i> Tarjetas
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="tarjetasDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/tarjetas/lista" @click="setTopMenu('gestEmpleados')">
-                    <i class="fa-solid fa-list-check me-2"></i> Gestión de Tarjetas
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/tarjetas/asignar" @click="setTopMenu('gestEmpleados')">
-                    <i class="fa-solid fa-link me-2"></i> Asignar Tarjeta a Empleado
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/tarjetas/bloqueo" @click="setTopMenu('gestEmpleados')">
-                    <i class="fa-solid fa-ban me-2"></i> Bloqueo/Desbloqueo
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-
-            <!-- Dispositivos -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="dispositivosDropdown"
-                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-tablet-alt me-1"></i> Dispositivos
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="dispositivosDropdown">
-                <li>
-                  <router-link class="dropdown-item" to="/dispositivos/biometrico" @click="setTopMenu('gestEmpleados')">
-                    <i class="fa-solid fa-plus-circle me-2"></i> Agregar Dispositivo Biometrico
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/dispositivos/lista" @click="setTopMenu('gestEmpleados')">
-                    <i class="fa-solid fa-list-ol me-2"></i> Lista de Dispositivos
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/dispositivos/conectar" @click="setTopMenu('gestEmpleados')">
-                    <i class="fa-solid fa-plug me-2"></i> Conectar Dispositivo
-                  </router-link>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
       <!-- Barra superior para módulos dinámicos -->
       <nav v-if="topMenu && topMenu.indexOf('dynamic_module_') === 0" class="navbar navbar-expand-lg top-menu">
         <div class="container-fluid">
@@ -597,8 +76,8 @@
                 <li v-for="menuItem in getMenuItemsForSubmodule(submodule.id)"
                     :key="menuItem.id">
                   <router-link class="dropdown-item"
-                               :to="menuItem.route || '#'"
-                               @click="selectSubmodule(submodule.id)">
+                               :to="getMenuItemRoute(menuItem)"
+                               @click="handleMenuItemClick">
                     <i :class="menuItem.icon || 'fa-solid fa-circle'"></i> {{ menuItem.name }}
                   </router-link>
                 </li>
@@ -657,6 +136,9 @@ const showPlatformMenu = ref(false)
 const isAuthenticated = ref(authService.isAuthenticated());
 const currentUser = ref(null);
 
+// Permisos del usuario
+const userPermissions = ref([]);
+
 // Módulos dinámicos
 const dynamicModules = ref([]);
 // Submódulos dinámicos
@@ -667,102 +149,128 @@ const dynamicMenuItems = ref([]);
 // Propiedades computadas
 const activeDynamicModules = computed(() => {
   if (!dynamicModules.value) return [];
-  // Si es un array, filtrar directamente
+  
+  let modulesArray = [];
   if (Array.isArray(dynamicModules.value)) {
-    return dynamicModules.value.filter(module => module && module.active);
+    modulesArray = dynamicModules.value;
+  } else if (dynamicModules.value.data && Array.isArray(dynamicModules.value.data)) {
+    modulesArray = dynamicModules.value.data;
   }
-  // Si es un objeto de respuesta paginada, usar la propiedad data
-  if (dynamicModules.value.data && Array.isArray(dynamicModules.value.data)) {
-    return dynamicModules.value.data.filter(module => module && module.active);
+  
+  // Filtrar módulos activos
+  const activeModules = modulesArray.filter(module => module && module.active);
+  
+  // Si hay permisos cargados, filtrar solo los módulos que el usuario tiene permiso de ver
+  if (userPermissions.value && userPermissions.value.length > 0) {
+    const allowedModuleIds = userPermissions.value
+      .filter(p => p.actions && p.actions.includes('view'))
+      .map(p => p.module_id);
+    
+    console.log('📋 Módulos permitidos (view):', allowedModuleIds);
+    return activeModules.filter(module => allowedModuleIds.includes(module.id));
   }
-  // Si no es ni array ni objeto paginado, devolver array vacío
-  return [];
+  
+  // Si no hay permisos, devolver todos
+  return activeModules;
 });
 
 // Submódulos activos para el módulo actual
 const activeDynamicSubmodules = computed(() => {
   if (!dynamicSubmodules.value) return [];
-  // Si es un array, filtrar directamente
+  
+  let submodulesArray = [];
   if (Array.isArray(dynamicSubmodules.value)) {
-    return dynamicSubmodules.value.filter(submodule => submodule && submodule.active);
+    submodulesArray = dynamicSubmodules.value;
+  } else if (dynamicSubmodules.value.data && Array.isArray(dynamicSubmodules.value.data)) {
+    submodulesArray = dynamicSubmodules.value.data;
   }
-  // Si es un objeto de respuesta paginada, usar la propiedad data
-  if (dynamicSubmodules.value.data && Array.isArray(dynamicSubmodules.value.data)) {
-    return dynamicSubmodules.value.data.filter(submodule => submodule && submodule.active);
+  
+  // Filtrar submódulos activos
+  const activeSubmodules = submodulesArray.filter(submodule => submodule && submodule.active);
+  
+  // Si hay permisos cargados, filtrar solo los submódulos que el usuario tiene permiso de ver
+  if (userPermissions.value && userPermissions.value.length > 0) {
+    const allowedSubmoduleIds = userPermissions.value
+      .filter(p => p.actions && p.actions.includes('view') && p.submodule_id !== null)
+      .map(p => p.submodule_id);
+    
+    console.log('📋 Submódulos permitidos (view):', allowedSubmoduleIds);
+    return activeSubmodules.filter(submodule => allowedSubmoduleIds.includes(submodule.id));
   }
-  // Si no es ni array ni objeto paginado, devolver array vacío
-  return [];
+  
+  // Si no hay permisos, devolver todos
+  return activeSubmodules;
 });
 
 // Ítems de menú para un submódulo específico
 const getMenuItemsForSubmodule = (submoduleId) => {
-  console.log('=== FILTRANDO ÍTEMS DE MENÚ PARA SUBMÓDULO ===');
-  console.log('ID del submódulo solicitado:', submoduleId);
-  console.log('Total de ítems de menú disponibles:', dynamicMenuItems.value?.length || 0);
-
-  if (!dynamicMenuItems.value) {
-    console.log('No hay ítems de menú disponibles');
-    return [];
-  }
+  if (!dynamicMenuItems.value) return [];
 
   let result = [];
-  // Si es un array, filtrar directamente
   if (Array.isArray(dynamicMenuItems.value)) {
     result = dynamicMenuItems.value.filter(item => {
-      const match = item && item.submodule_id == submoduleId && item.active;
-      if (match) {
-        console.log('Ítem coincidente encontrado:', item);
-      }
-      return match;
+      return item && item.submodule_id == submoduleId && item.active;
     });
-  }
-  // Si es un objeto de respuesta paginada, usar la propiedad data
-  else if (dynamicMenuItems.value.data && Array.isArray(dynamicMenuItems.value.data)) {
+  } else if (dynamicMenuItems.value.data && Array.isArray(dynamicMenuItems.value.data)) {
     result = dynamicMenuItems.value.data.filter(item => {
-      const match = item && item.submodule_id == submoduleId && item.active;
-      if (match) {
-        console.log('Ítem coincidente encontrado:', item);
-      }
-      return match;
+      return item && item.submodule_id == submoduleId && item.active;
     });
-  }
-  // Si no es ni array ni objeto paginado, devolver array vacío
-  else {
-    result = [];
   }
 
-  console.log('Total de ítems de menú encontrados para el submódulo:', result.length);
-  console.log('Ítems de menú filtrados:', result);
-  console.log('=== FIN FILTRADO ÍTEMS DE MENÚ ===');
+  // Si hay permisos cargados, filtrar solo los menu-items que el usuario tiene permiso de ver
+  if (userPermissions.value && userPermissions.value.length > 0) {
+    const allowedMenuItemIds = userPermissions.value
+      .filter(p => p.actions && p.actions.includes('view') && p.menu_item_id !== null)
+      .map(p => p.menu_item_id);
+    
+    console.log('📋 Menu items permitidos (view):', allowedMenuItemIds);
+    result = result.filter(item => allowedMenuItemIds.includes(item.id));
+  }
+
   return result;
 };
 
 // Función para cargar la información del usuario
-const loadCurrentUser = () => {
+const loadCurrentUser = async () => {
   if (isAuthenticated.value) {
     const userStr = localStorage.getItem('user');
     if (userStr) {
       try {
         const userData = JSON.parse(userStr);
-        // Asegurarse de que tenemos la información necesaria
+        
+        // Buscar role_id en diferentes posibles campos
+        const roleId = userData.role_id || userData.rol_id || 
+                       userData.role?.id || userData.rol?.id ||
+                       (userData.role && typeof userData.role === 'object' ? userData.role.id : null);
+        
         currentUser.value = {
           name: userData.name || userData.first_name || userData.username || 'Usuario',
           email: userData.email || '',
-          role: userData.role || userData.rol || userData.role_name || 'Usuario'
+          role: userData.role || userData.rol || userData.role_name || 'Usuario',
+          role_id: roleId
         };
+        
+        console.log('✅ Usuario cargado:', currentUser.value);
+        
+        // Cargar permisos del usuario
+        if (roleId) {
+          await loadUserPermissions(roleId);
+        }
       } catch (e) {
         console.error('Error al parsear la información del usuario:', e);
         currentUser.value = {
           name: 'Usuario',
           email: '',
-          role: 'Usuario'
+          role: 'Usuario',
+          role_id: null
         };
       }
     } else {
       currentUser.value = {
         name: 'Usuario',
         email: '',
-        role: 'Usuario'
+        role: 'Usuario',
+        role_id: null
       };
     }
 
@@ -770,9 +278,32 @@ const loadCurrentUser = () => {
     loadDynamicModules();
   } else {
     currentUser.value = null;
+    userPermissions.value = [];
     dynamicModules.value = [];
     dynamicSubmodules.value = [];
     dynamicMenuItems.value = [];
+  }
+};
+
+// Función para cargar los permisos del usuario
+const loadUserPermissions = async (roleId) => {
+  try {
+    console.log('🔑 Cargando permisos para role_id:', roleId);
+    const response = await api.get(`/permissions?role_id=${roleId}`);
+    const permissions = response.data.data || response.data || [];
+    
+    userPermissions.value = permissions;
+    
+    console.log('✅ Permisos cargados:', permissions.length, 'permisos');
+    console.log('📋 Permisos:', permissions.map(p => ({
+      module_id: p.module_id,
+      submodule_id: p.submodule_id,
+      menu_item_id: p.menu_item_id,
+      actions: p.actions
+    })));
+  } catch (error) {
+    console.error('❌ Error al cargar permisos:', error.message);
+    userPermissions.value = [];
   }
 };
 
@@ -794,9 +325,10 @@ const getModuleRoute = (module) => {
   if (!module || typeof module !== 'object') {
     return '#';
   }
-  // Si el módulo tiene una ruta específica, usarla
+  // Si el módulo tiene una ruta específica, usarla (asegurando que empiece con /)
   if (module.route && typeof module.route === 'string') {
-    return module.route;
+    // Asegurar que la ruta empiece con /
+    return module.route.startsWith('/') ? module.route : `/${module.route}`;
   }
   // Si no, construir una ruta estándar basada en el ID del módulo
   if (module.id) {
@@ -811,14 +343,42 @@ const getModuleRoute = (module) => {
   return '#';
 };
 
+// Método para obtener la ruta del menu item
+const getMenuItemRoute = (menuItem) => {
+  // Verificar que el menu item sea un objeto válido
+  if (!menuItem || typeof menuItem !== 'object') {
+    return '#';
+  }
+  // Si el menu item tiene una ruta específica, usarla (asegurando que empiece con /)
+  if (menuItem.route && typeof menuItem.route === 'string') {
+    // Asegurar que la ruta empiece con /
+    return menuItem.route.startsWith('/') ? menuItem.route : `/${menuItem.route}`;
+  }
+  // Si no hay ruta, devolver #
+  return '#';
+};
+
+// Método para manejar clic en módulo dinámico
+const handleDynamicModuleClick = async (module) => {
+  console.log('=== CLIC EN MÓDULO DINÁMICO ===');
+  console.log('Módulo:', module);
+  // Establecer el menú superior y cargar submódulos
+  await setTopMenu(module.id);
+};
+
+// Método para manejar clic en menu item - cierra el dropdown y navega
+const handleMenuItemClick = () => {
+  // Cerrar todos los dropdowns abiertos
+  // Bootstrap 5 cierra automáticamente los dropdowns cuando se navega con router-link
+  // Solo necesitamos asegurarnos de que el comportamiento por defecto ocurra
+};
+
 // Método para manejar la selección de submódulo y cargar sus ítems de menú
 const selectSubmodule = async (submoduleId) => {
   console.log('=== EJECUTANDO selectSubmodule ===');
   console.log('ID del submódulo recibido:', submoduleId);
-  console.log('Cargando ítems de menú para el submódulo...');
-  await loadDynamicMenuItems(submoduleId);
-  console.log('Ítems de menú cargados para el submódulo:', submoduleId);
-  console.log('Total de ítems de menú cargados:', dynamicMenuItems.value.length);
+  // Los ítems de menú ya están cargados desde loadDynamicSubmodules con include=menu_items
+  // No es necesario recargarlos, solo se usa para abrir el dropdown
   console.log('=== FIN EJECUCIÓN selectSubmodule ===');
 };
 
@@ -1018,6 +578,14 @@ const setTopMenu = async (menu) => {
 }
 
 const updateTopMenu = (path) => {
+  // Si el menú actual es un módulo dinámico, mantenerlo para todas las rutas
+  // Esto asegura que la barra superior dinámica permanezca visible
+  if (topMenu.value && topMenu.value.startsWith('dynamic_module_')) {
+    // Verificar si la ruta actual corresponde a un módulo dinámico
+    // Si es así, no modificar el topMenu para preservar el menú dinámico seleccionado
+    return;
+  }
+  
   // Si está en rutas de empleados o empresas
   if (employeeRoutes.includes(path) || businessRoutes.includes(path) || path === '/parametrizacion') {
     topMenu.value = 'parametrizacion'
@@ -1139,7 +707,8 @@ const handleLogout = async () => {
   transform: translateX(5px);
 }
 
-.sidebar .nav-link.router-link-active {
+.sidebar .nav-link.router-link-active,
+.sidebar .nav-link.active {
   background: rgba(255, 255, 255, 0.15);
   color: white;
   border-left: 3px solid #2dc23f;

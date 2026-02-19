@@ -138,6 +138,34 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal de confirmación -->
+    <div v-if="showConfirmModal" class="modal-overlay" @click.self="cancelAction">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">{{ confirmModalTitle }}</h3>
+        </div>
+        <div class="modal-body">
+          <p>{{ confirmModalMessage }}</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" @click="cancelAction">Cancelar</button>
+          <button class="btn btn-primary" @click="confirmAction">Aceptar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de notificación -->
+    <div v-if="showNotificationModal" class="modal-overlay" @click.self="closeNotification">
+      <div class="modal-content">
+        <div class="modal-icon">
+          <i class="fa-solid fa-check-circle" style="color: #4CAF50; font-size: 48px;"></i>
+        </div>
+        <h3 class="modal-title">{{ notificationTitle }}</h3>
+        <p class="modal-message">{{ notificationMessage }}</p>
+        <button class="btn btn-primary" @click="closeNotification">OK</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -153,10 +181,53 @@ const loading = ref(false)
 const loadingDelete = ref(null)
 const errors = ref({})
 
+// Modal de confirmación
+const showConfirmModal = ref(false)
+const confirmModalTitle = ref('')
+const confirmModalMessage = ref('')
+const confirmCallback = ref(null)
+
+// Modal de notificación
+const showNotificationModal = ref(false)
+const notificationTitle = ref('')
+const notificationMessage = ref('')
+
 const form = ref({
   name: '',
   description: ''
 })
+
+// Funciones para modales
+const showNotification = (title, message) => {
+  notificationTitle.value = title
+  notificationMessage.value = message
+  showNotificationModal.value = true
+}
+
+const closeNotification = () => {
+  showNotificationModal.value = false
+  notificationTitle.value = ''
+  notificationMessage.value = ''
+}
+
+const showConfirmation = (title, message, callback) => {
+  confirmModalTitle.value = title
+  confirmModalMessage.value = message
+  confirmCallback.value = callback
+  showConfirmModal.value = true
+}
+
+const cancelAction = () => {
+  showConfirmModal.value = false
+  confirmCallback.value = null
+}
+
+const confirmAction = () => {
+  if (confirmCallback.value) {
+    confirmCallback.value()
+  }
+  showConfirmModal.value = false
+}
 
 // Methods
 const loadRoles = async () => {
@@ -184,7 +255,7 @@ const handleSubmit = async () => {
     }
 
     // Show success message
-    alert(editingRole.value ? 'Rol actualizado correctamente' : 'Rol creado exitosamente')
+    showNotification('Éxito', editingRole.value ? 'Rol actualizado correctamente' : 'Rol creado exitosamente')
 
     // Reset form and reload roles
     resetForm()
@@ -195,9 +266,9 @@ const handleSubmit = async () => {
     // Handle validation errors
     if (error.response?.status === 422) {
       errors.value = error.response.data.errors || {}
-      alert('Por favor corrija los errores en el formulario')
+      showNotification('Advertencia', 'Por favor corrija los errores en el formulario')
     } else {
-      alert('Ocurrió un error al guardar el rol. Por favor inténtelo de nuevo.')
+      showNotification('Error', 'Ocurrió un error al guardar el rol. Por favor inténtelo de nuevo.')
     }
   } finally {
     loading.value = false
@@ -213,25 +284,27 @@ const editRole = (role) => {
   showForm.value = true
 }
 
-const deleteRole = async (roleId) => {
-  if (!confirm('¿Está seguro de que desea eliminar este rol? Esta acción no se puede deshacer.')) {
-    return
-  }
+const deleteRole = (roleId) => {
+  showConfirmation(
+    'Confirmación requerida',
+    '¿Está seguro de que desea eliminar este rol? Esta acción no se puede deshacer.',
+    async () => {
+      loadingDelete.value = roleId
 
-  loadingDelete.value = roleId
+      try {
+        await api.delete(`/roles/${roleId}`)
 
-  try {
-    await api.delete(`/roles/${roleId}`)
-    
-    // Remove role from local array
-    roles.value = roles.value.filter(role => role.id !== roleId)
-    alert('Rol eliminado exitosamente')
-  } catch (error) {
-    console.error('Error al eliminar rol:', error)
-    alert('Ocurrió un error al eliminar el rol. Por favor inténtelo de nuevo.')
-  } finally {
-    loadingDelete.value = null
-  }
+        // Remove role from local array
+        roles.value = roles.value.filter(role => role.id !== roleId)
+        showNotification('Éxito', 'Rol eliminado exitosamente')
+      } catch (error) {
+        console.error('Error al eliminar rol:', error)
+        showNotification('Error', 'Ocurrió un error al eliminar el rol. Por favor inténtelo de nuevo.')
+      } finally {
+        loadingDelete.value = null
+      }
+    }
+  )
 }
 
 const resetForm = () => {
@@ -353,5 +426,61 @@ onMounted(async () => {
   margin-top: 0.25rem;
   font-size: 0.875em;
   color: #dc3545;
+}
+
+/* Estilos para modales */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 500px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+  margin-bottom: 16px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 12px;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  margin: 0;
+  color: #333;
+}
+
+.modal-body {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.modal-message {
+  margin: 0;
+}
+
+.modal-icon {
+  margin-bottom: 16px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
 }
 </style>

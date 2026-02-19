@@ -76,12 +76,23 @@ const routes = [
       email: route.query.email 
     })
   },
-
-  {
+  /*{
   path: '/Prueba2/prueba3',  // Esta ruta debe coincidir con la que definas en la BD
-  name: 'Prueba',
+  name: '',
   component: () => import('@/views/Prueba/prueba.vue'),
   meta: { requiresAuth: true } // Si requiere autenticación
+  },*/
+  {
+    path: '/admin/users',  // Esta ruta debe coincidir con la que definas en la BD
+    name: 'UsersList',
+    component: UsersList,
+    meta: { requiresAuth: true } // Si requiere autenticación
+  },
+  {
+    path: '/admin/users',  // Esta ruta debe coincidir con la que definas en la BD
+    name: 'UsersList',
+    component: UsersList,
+    meta: { requiresAuth: true } // Si requiere autenticación
   },
 
   // Ruta principal (requiere autenticación)
@@ -330,7 +341,7 @@ const routes = [
   },
 
   // Rutas - Administración de Usuarios
-  {
+  /*{
     path: '/admin/users',
     name: 'adminUsers',
     component: UsersList,
@@ -338,7 +349,7 @@ const routes = [
       title: 'Gestión de Usuarios',
       requiresAuth: true
     }
-  },
+  },*/
   {
     path: '/admin/users/create',
     name: 'adminUsersCreate',

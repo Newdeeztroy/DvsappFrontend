@@ -206,7 +206,7 @@ const formData = ref({
   email: '',
   password: '',
   password_confirmation: '',
-  role_id: ''
+  role_id: null
 })
 
 const errors = ref({})
@@ -233,9 +233,9 @@ const loadUserData = async () => {
           email: userData.email || '',
           password: '',
           password_confirmation: '',
-          role_id: userData.role_id || ''
+          role_id: userData.role_id || null
         }
-      } 
+      }
       // Si viene con name completo
       else if (userData.name) {
         const nameParts = userData.name.split(' ')
@@ -245,7 +245,7 @@ const loadUserData = async () => {
           email: userData.email || '',
           password: '',
           password_confirmation: '',
-          role_id: userData.role_id || ''
+          role_id: userData.role_id || null
         }
       }
       // Si viene con otros campos
@@ -256,7 +256,7 @@ const loadUserData = async () => {
           email: userData.email || '',
           password: '',
           password_confirmation: '',
-          role_id: userData.role_id || ''
+          role_id: userData.role_id || null
         }
       }
       
@@ -290,44 +290,60 @@ const loadData = async () => {
 
 // Handle form submission
 const handleSubmit = async () => {
-  console.log('Enviando formulario...')
+  console.log('=== ENVIANDO FORMULARIO ===')
   console.log('Modo:', isEditing.value ? 'Edición' : 'Creación')
-  console.log('Datos a enviar:', formData.value)
-  
+  console.log('formData.role_id ANTES de procesar:', formData.value.role_id, 'Tipo:', typeof formData.value.role_id)
+  console.log('Datos completos a enviar:', formData.value)
+
   errors.value = {}
   loading.value = true
-  
+
   try {
     let response
     const submitData = { ...formData.value }
-    
+
+    console.log('submitData.role_id DESPUES de copiar:', submitData.role_id, 'Tipo:', typeof submitData.role_id)
+
+    // Asegurar que role_id sea un número o null
+    if (submitData.role_id === '' || submitData.role_id === null) {
+      // Si no hay rol seleccionado, enviar null
+      console.log('No hay rol seleccionado, enviando null')
+      submitData.role_id = null
+    } else {
+      // Convertir a número entero
+      submitData.role_id = parseInt(submitData.role_id, 10)
+      console.log('Rol seleccionado convertido a número:', submitData.role_id)
+    }
+
+    console.log('📤 Datos FINALES a enviar:', submitData)
+
     // DEPURACIÓN: Mostrar URL completa
     const baseURL = api.defaults.baseURL || 'http://localhost'
-    
+
     if (isEditing.value) {
       // Actualizar usuario existente
       const url = `/users/${route.params.id}`
       console.log(`📤 PUT a: ${baseURL}${url}`)
-      console.log('Datos:', submitData)
-      
+      console.log('Datos finales:', submitData)
+
       // Para edición, si password está vacío, eliminarlo
       if (!submitData.password) {
         delete submitData.password
         delete submitData.password_confirmation
       }
-      
+
       response = await api.put(url, submitData)
     } else {
       // Crear nuevo usuario
       const url = '/users'
       console.log(`📤 POST a: ${baseURL}${url}`)
-      console.log('Datos:', submitData)
-      
+      console.log('Datos finales:', submitData)
+
       response = await api.post(url, submitData)
     }
-    
+
     console.log('✅ Respuesta exitosa:', response.data)
-    
+
     // Mostrar mensaje de éxito
     const successMessage = isEditing.value ? 'Usuario actualizado correctamente' : 'Usuario creado exitosamente'
     showNotification('Éxito', successMessage, 'success')
@@ -336,16 +352,17 @@ const handleSubmit = async () => {
     setTimeout(() => {
       router.push('/admin/users')
     }, 1500)
-    
+
   } catch (error) {
     console.error('❌ Error completo:', {
       message: error.message,
       status: error.response?.status,
       data: error.response?.data,
       url: error.config?.url,
-      method: error.config?.method
+      method: error.config?.method,
+      requestData: error.config?.data
     })
-    
+
     // Manejar errores de validación (422)
     if (error.response?.status === 422) {
       errors.value = error.response.data.errors || {}
